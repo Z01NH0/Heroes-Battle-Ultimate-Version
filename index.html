@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heroes Battle: ULTIMATE</title>
+  <title>Heroes Battle: ULTIMATE </title>
     <style>
         body {
             margin: 0;
@@ -226,7 +226,7 @@
         </div>
         
         <div id="menu">
-            <h1 id="title">Heroes Battle: ULTIMATE</h1>
+          <h1 id="title">Heroes Battle: ULTIMATE </h1>
             <div class="character-select">
                 <div class="character" data-character="fireMage">
                     <div class="character-icon">🔥</div>
@@ -1266,18 +1266,18 @@
                 this.rotation += 0.02;
                 ctx.rotate(this.rotation);
                 
-               
+                // Desenhar power-up com efeito flutuante
                 const floatOffset = Math.sin(Date.now() / 300) * 5;
                 
                 ctx.fillStyle = this.color;
                 ctx.fillRect(-this.size/2, -this.size/2 + floatOffset, this.size, this.size);
                 
-                
+                // Desenhar borda
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(-this.size/2, -this.size/2 + floatOffset, this.size, this.size);
                 
-              
+                // Desenhar efeito brilhante
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.beginPath();
                 ctx.moveTo(-this.size/2, -this.size/2 + floatOffset);
@@ -1307,18 +1307,19 @@
             }
         }
 
-       
+        // Funções do jogo
         function spawnEnemy() {
             const types = ['yellow', 'red', 'darkRed', 'blue', 'brown'];
-            const weights = [0.4, 0.3, 0.15, 0.1, 0.05];
+            const weights = [0.4, 0.3, 0.15, 0.1, 0.05]; // Probabilidades para cada tipo (inimigos mais fortes mais raros)
             
+            // Ajustar pesos baseado no score - inimigos mais fortes ficam mais comuns
             const scoreFactor = Math.min(1, score / 500);
             const adjustedWeights = [
-                weights[0] * (1 - scoreFactor * 0.5),
-                weights[1] * (1 - scoreFactor * 0.3), 
-                weights[2] * (1 + scoreFactor),      
-                weights[3] * (1 + scoreFactor * 1.5),
-                weights[4] * (1 + scoreFactor * 2)    
+                weights[0] * (1 - scoreFactor * 0.5), // yellow menos comum
+                weights[1] * (1 - scoreFactor * 0.3), // red menos comum
+                weights[2] * (1 + scoreFactor),       // darkRed mais comum
+                weights[3] * (1 + scoreFactor * 1.5), // blue mais comum
+                weights[4] * (1 + scoreFactor * 2)    // brown mais comum
             ];
             
             const totalWeight = adjustedWeights.reduce((a, b) => a + b, 0);
@@ -1339,7 +1340,7 @@
         function spawnBoss() {
             enemies.push(new Enemy('boss', enemyBuffLevel));
             
-           
+            // Efeito visual para spawn do boss
             effects.push({
                 x: config.width / 2,
                 y: config.height / 2,
@@ -1355,7 +1356,7 @@
 
         function spawnPowerUp() {
             const types = ['health20', 'health40', 'health80', 'infiniteAmmo'];
-            const weights = [0.4, 0.3, 0.2, 0.1]; 
+            const weights = [0.4, 0.3, 0.2, 0.1]; // Probabilidades para cada tipo
             const totalWeight = weights.reduce((a, b) => a + b, 0);
             let random = Math.random() * totalWeight;
             let typeIndex = 0;
@@ -1407,13 +1408,13 @@
             const now = Date.now();
             gameTime = now;
             
-           
+            // Verificar buffs do jogador
             const newPlayerBuffLevel = Math.floor(score / 100);
             if (newPlayerBuffLevel > playerBuffLevel) {
                 playerBuffLevel = newPlayerBuffLevel;
                 player.applyBuff();
                 
-              
+                // Efeito visual de buff
                 effects.push({
                     x: player.x,
                     y: player.y,
@@ -1427,33 +1428,33 @@
                 });
             }
             
-   =
+            // Verificar buffs dos inimigos
             const newEnemyBuffLevel = Math.floor(score / 160);
             if (newEnemyBuffLevel > enemyBuffLevel) {
                 enemyBuffLevel = newEnemyBuffLevel;
             }
             
-         
+            // Atualizar jogador
             player.update();
             
-       
+            // Spawn de inimigos
             if (now - lastEnemySpawn > config.enemySpawnRate) {
                 spawnEnemy();
                 lastEnemySpawn = now;
             }
             
-
+            // Spawn de power-ups
             if (now - lastPowerUpSpawn > config.powerUpSpawnRate) {
                 spawnPowerUp();
                 lastPowerUpSpawn = now;
             }
             
- 
+            // Atualizar inimigos (iterar em ordem reversa para evitar problemas ao remover)
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
                 enemy.update();
                 
-
+                // Verificar colisão com projéteis do jogador (iterar em ordem reversa)
                 for (let j = projectiles.length - 1; j >= 0; j--) {
                     const bullet = projectiles[j];
                     const dx = enemy.x - bullet.x;
@@ -1463,7 +1464,7 @@
                     if (distance < enemy.size + bullet.size) {
                         const died = enemy.takeDamage(bullet.damage);
                         
-   
+                        // Aplicar efeitos se houver
                         if (bullet.effectType === 'burn' && !died) {
                             effects.push({
                                 target: enemy,
@@ -1482,19 +1483,19 @@
                 }
             }
             
-     
+            // Atualizar projéteis do jogador (iterar em ordem reversa)
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 if (projectiles[i].update()) {
                     projectiles.splice(i, 1);
                 }
             }
             
- 
+            // Atualizar projéteis inimigos (iterar em ordem reversa)
             for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
                 if (enemyProjectiles[i].update()) {
                     enemyProjectiles.splice(i, 1);
                 } else {
-      
+                    // Verificar colisão com jogador
                     const bullet = enemyProjectiles[i];
                     const dx = player.x - bullet.x;
                     const dy = player.y - bullet.y;
@@ -1507,13 +1508,13 @@
                 }
             }
             
-   
+            // Atualizar power-ups (iterar em ordem reversa)
             for (let i = powerUps.length - 1; i >= 0; i--) {
                 const powerUp = powerUps[i];
                 if (powerUp.checkCollision()) {
                     powerUps.splice(i, 1);
                     
-         
+                    // Efeito visual ao pegar power-up
                     effects.push({
                         x: player.x,
                         y: player.y,
@@ -1528,18 +1529,18 @@
                 }
             }
             
-
+            // Atualizar efeitos (iterar em ordem reversa)
             for (let i = effects.length - 1; i >= 0; i--) {
                 const effect = effects[i];
                 
                 if (effect.type === 'burn') {
-        
+                    // Efeito de queimadura em inimigos
                     if (now - effect.startTime > effect.duration) {
                         effects.splice(i, 1);
                         continue;
                     }
                     
-
+                    // Verificar se o inimigo ainda existe
                     if (enemies.indexOf(effect.target) === -1) {
                         effects.splice(i, 1);
                         continue;
@@ -1549,7 +1550,7 @@
                         effect.target.takeDamage(effect.damage);
                         effect.lastHitTime = now;
                         
-
+                        // Partículas de queimadura
                         effects.push({
                             x: effect.target.x + (Math.random() * effect.target.size * 2 - effect.target.size),
                             y: effect.target.y + (Math.random() * effect.target.size * 2 - effect.target.size),
@@ -1563,7 +1564,7 @@
                         });
                     }
                 } else if (effect.type === 'aura') {
-
+                    // Aura de fogo do mago
                     effect.x = player.x;
                     effect.y = player.y;
                     
@@ -1572,7 +1573,7 @@
                         continue;
                     }
                     
-
+                    // Verificar colisão com inimigos (iterar em ordem reversa)
                     for (let j = enemies.length - 1; j >= 0; j--) {
                         const enemy = enemies[j];
                         const dx = enemy.x - effect.x;
@@ -1587,7 +1588,7 @@
                         }
                     }
                 } else if (effect.type === 'circleWave') {
-
+                    // Efeito de onda circular
                     const progress = (now - effect.startTime) / effect.duration;
                     effect.radius = progress * effect.maxRadius;
                     
@@ -1595,14 +1596,14 @@
                         effects.splice(i, 1);
                     }
                 } else if (effect.type === 'particles') {
-
+                    // Efeito de partículas
                     if (now - effect.startTime > effect.life) {
                         effects.splice(i, 1);
                     }
                 }
             }
             
-
+            // Atualizar barra de especial
             if (!specialReady) {
                 const elapsed = now - (player.specialActive ? player.specialEndTime - player.specialCooldown : gameTime - player.specialCooldown);
                 const percent = (elapsed / player.specialCooldown) * 100;
@@ -1611,17 +1612,17 @@
                 specialFill.style.width = '100%';
             }
             
-
+            // Cavaleiro com especial ativo - verificar colisão com espada
             if (player.type === 'knight' && player.specialActive) {
                 const swordLength = player.size * 2;
                 const swordEndX = player.x + Math.cos(player.swordAngle) * swordLength;
                 const swordEndY = player.y + Math.sin(player.swordAngle) * swordLength;
                 
-
+                // Iterar em ordem reversa para evitar problemas ao remover inimigos
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     const enemy = enemies[i];
                     
-
+                    // Verificar colisão com a espada
                     if (checkLineCircleCollision(
                         player.x, player.y, swordEndX, swordEndY,
                         enemy.x, enemy.y, enemy.size
@@ -1630,7 +1631,7 @@
                             const died = enemy.takeDamage(50 * player.damageMultiplier);
                             enemy.lastHitTime = now;
                             
-
+                            // Efeito de golpe (só se não morreu)
                             if (!died) {
                                 effects.push({
                                     x: enemy.x,
@@ -1649,19 +1650,19 @@
                 }
             }
             
-
+            // Tiro automático se estiver com munição infinita
             if (infiniteAmmo && (now - player.lastShotTime > 100)) {
                 player.shoot(mouse.x, mouse.y);
             }
         }
 
         function checkLineCircleCollision(x1, y1, x2, y2, cx, cy, r) {
-
+            // Verificar se o ponto mais próximo da linha está dentro do círculo
             const lineLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
             const u = ((cx - x1) * (x2 - x1) + (cy - y1) * (y2 - y1)) / (lineLength ** 2);
             
             if (u < 0 || u > 1) {
-  
+                // O ponto mais próximo está fora do segmento de linha
                 const dist1 = Math.sqrt((cx - x1) ** 2 + (cy - y1) ** 2);
                 const dist2 = Math.sqrt((cx - x2) ** 2 + (cy - y2) ** 2);
                 return Math.min(dist1, dist2) <= r;
@@ -1676,11 +1677,11 @@
         function draw() {
             if (!gameRunning) return;
             
-     
+            // Limpar tela
             ctx.fillStyle = '#111';
             ctx.fillRect(0, 0, config.width, config.height);
             
-      
+            // Desenhar efeitos de fundo
             for (const effect of effects) {
                 if (effect.type === 'circleWave') {
                     ctx.strokeStyle = effect.color;
@@ -1691,27 +1692,27 @@
                 }
             }
             
-     
+            // Desenhar power-ups
             for (const powerUp of powerUps) {
                 powerUp.draw();
             }
             
-   
+            // Desenhar projéteis inimigos
             for (const bullet of enemyProjectiles) {
                 bullet.draw();
             }
             
-
+            // Desenhar inimigos
             for (const enemy of enemies) {
                 enemy.draw();
             }
             
-
+            // Desenhar projéteis do jogador
             for (const bullet of projectiles) {
                 bullet.draw();
             }
             
-          
+            // Desenhar jogador
             player.draw();
             
            
@@ -1747,7 +1748,7 @@
                 ctx.fillText(`Munição Infinita: ${timeLeft}s`, 20, 50);
             }
             
-           
+            // Desenhar buffs do jogador
             ctx.fillStyle = '#ff0';
             ctx.font = '20px Arial';
             ctx.fillText(`Buff: ${playerBuffLevel}x`, 20, 80);
@@ -1759,13 +1760,13 @@
             requestAnimationFrame(gameLoop);
         }
 
-       
+        // Event listeners
         window.addEventListener('resize', resizeCanvas);
         
         window.addEventListener('keydown', (e) => {
             keys[e.key] = true;
             
-           
+            // Tecla E para habilidade especial
             if (e.key === 'e' && gameRunning) {
                 player.useSpecial(mouse.x, mouse.y);
             }
@@ -1808,7 +1809,7 @@
             });
         });
 
-       
+        // Inicialização
         resizeCanvas();
         gameUI.style.display = 'none';
         gameOverScreen.style.display = 'none';
